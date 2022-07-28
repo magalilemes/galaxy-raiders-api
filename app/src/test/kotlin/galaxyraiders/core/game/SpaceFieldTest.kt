@@ -70,7 +70,16 @@ class SpaceFieldTest {
   }
 
   @Test
-  fun `it has a list of objects with ship, asteroids and missiles`() {
+  fun `it starts with no explosions`() {
+    assertAll(
+      "SpaceField should initialize an empty list of explosions",
+      { assertNotNull(spaceField.explosions) },
+      { assertEquals(0, spaceField.explosions.size) },
+    )
+  }
+
+  @Test
+  fun `it has a list of objects with ship, asteroids, missiles and explosions`() {
     val ship = spaceField.ship
 
     spaceField.generateAsteroid()
@@ -79,8 +88,11 @@ class SpaceFieldTest {
     spaceField.generateMissile()
     val missile = spaceField.missiles.last()
 
+    spaceField.generateExplosion(missile)
+    val explosion = spaceField.explosions.last()
+
     val expectedSpaceObjects = listOf<SpaceObject>(
-      ship, asteroid, missile
+      ship, asteroid, missile, explosion
     )
 
     assertEquals(expectedSpaceObjects, spaceField.spaceObjects)
@@ -120,6 +132,39 @@ class SpaceFieldTest {
       { assertEquals(1.0, missile.velocity.dy, DELTA) },
     )
   }
+
+  @Test
+  fun `it generates an explosion in the middle of the missile`() {
+    spaceField.generateMissile()
+    val missile = spaceField.missiles.last()
+
+    spaceField.generateExplosion(missile)
+
+    val explosion = spaceField.explosions.last()
+
+    assertAll(
+      "SpaceField creates a new explosion with restrictions",
+      { assertEquals(explosion.center.x, missile.center.x,) },
+      { assertEquals(explosion.center.y, missile.center.y,) },
+    )
+  }
+
+  @Test
+  fun `it generates an explosion with null velocity`() {
+    spaceField.generateMissile()
+    val missile = spaceField.missiles.last()
+
+    spaceField.generateExplosion(missile)
+
+    val explosion = spaceField.explosions.last()
+
+    assertAll(
+      "SpaceField creates a new explosion with restrictions",
+      { assertEquals(0.0, explosion.velocity.dx, DELTA) },
+      { assertEquals(1.0, explosion.velocity.dy, DELTA) },
+    )
+  }
+
 
   @Test
   fun `it can generate a new asteroid`() {

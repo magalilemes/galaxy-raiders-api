@@ -81,9 +81,14 @@ class GameEngine(
 
   fun updateSpaceObjects() {
     if (!this.playing) return
+    this.handleExplosions()
     this.handleCollisions()
     this.moveSpaceObjects()
     this.generateAsteroids()
+  }
+
+  fun handleExplosions() {
+    this.field.explosions = emptyList()
   }
 
   fun handleCollisions() {
@@ -91,6 +96,9 @@ class GameEngine(
         (first, second) ->
       if (first.impacts(second)) {
         first.collideWith(second, GameEngineConfig.coefficientRestitution)
+        if ((first is Missile && second is Asteroid) || (second is Missile && first is Asteroid)) {
+          this.field.generateExplosion(first)
+        }
       }
     }
   }
